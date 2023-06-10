@@ -23,5 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-backend/dogtimer
+backend/dist/*
+backend/dogtimer_arm64
+backend/dogtimer_x86_64
 *.tgz
