@@ -26,4 +26,7 @@ dist-ssr
 backend/dist/*
 backend/dogtimer_arm64
 backend/dogtimer_x86_64
+backend/*.db
+dogtimer_arm64
+dogtimer_x86_64
 *.tgz
