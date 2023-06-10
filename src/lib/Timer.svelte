@@ -1,11 +1,10 @@
 <script>
   import { onMount } from 'svelte';
-  let proto = import.meta.env.VITE_PROTO
-  let hostname = import.meta.env.VITE_HOSTNAME;
-  let port = import.meta.env.VITE_PORT;
-  let base_url = `${proto}://${hostname}:${port}`
+  let port = import.meta.env.DEV ? 3000: window.location.port;
+  let base_url = `${window.location.protocol}//${window.location.hostname}:${port}`
   let previousLast = new Date().getTime();
   let lastTime = new Date().getTime();
+  let message = 'loading...';
   let hours = '';
   let minutes = '';
   let diff = 0;
@@ -19,6 +18,15 @@
       hours   = Math.floor(diff/60/60);
       minutes = Math.floor(diff/60%60);
 
+      if (hours < 1) {
+        message = `${minutes} mins`;
+      }
+      else if (hours === 1) {
+        message = `${hours} hour<br>${minutes} mins`
+      }
+      else
+        message = `${hours} hours<br>${minutes} mins`
+
       if (now % 3 === 0) {
         getLatestTime()
       }
@@ -28,15 +36,14 @@
   }
 
   const undo = () => {
+    message = ''
     lastTime = previousLast;
     setLatestTime();
   }
 
   const reset = () => {
     if (diff > 300) {
-      hours = 0
-      minutes = 0
-      diff = 0
+      message = "0 mins";
       previousLast = lastTime;
       lastTime = new Date().getTime();
       setLatestTime();
@@ -77,15 +84,7 @@
 </script>
 
 <button class="card {name}" style="height:{height*.78}px" on:click={reset}>
-  {#if hours === ''}
-    loading...
-  {:else if hours<1}
-    {minutes} mins
-  {:else if hours === 1}
-    {hours} hour<br>{minutes} mins
-  {:else}
-    {hours} hours<br>{minutes} mins
-  {/if}
+  {@html message}
 </button>
 <button class="undo" style="height:{height*.2}px" on:click={undo}>
   undo
