@@ -1,5 +1,3 @@
 freeloaders.lol
 
-root * dist/
-reverse_proxy /time/* localhost:3000
-file_server
+reverse_proxy localhost:3000

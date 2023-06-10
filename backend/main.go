@@ -3,11 +3,20 @@ package main
 import (
 	"log"
 	"time"
+	
+    "embed"
+    "net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+    "github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/storage/bbolt"
 )
+
+// Embed a directory
+//go:embed dist/*
+var embedDirStatic embed.FS
+
 
 func main() {
 	
@@ -18,23 +27,7 @@ func main() {
 	})
 	defer store.Close()
 
-	times := map[string]string{
-		"ate": "0",
-		"ate_previous": "0",
-		"pee": "0",
-		"pee_previous": "0",
-		"poop": "0",
-		"poop_previous": "0",
-	}
 	exp := 0*time.Second
-
-	for key, val := range times {
-		err := store.Set(key, []byte(val), exp)
-		if err != nil {
-			log.Println("Error setting value:", err)
-		}
-	}
-
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
@@ -62,6 +55,12 @@ func main() {
 		store.Set(timerType, []byte(timeStamp), exp)
 		return c.JSON(struct{Time string}{timeStamp})
 	})
+
+	app.Use("/", filesystem.New(filesystem.Config{
+        Root: http.FS(embedDirStatic),
+        PathPrefix: "dist",
+        Browse: true,
+    }))
 
 	log.Println("live")
 	log.Fatal(app.Listen(":3000"))
