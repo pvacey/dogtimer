@@ -1,0 +1,1 @@
+placeholder, this folder is expected by go:embed

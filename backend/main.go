@@ -3,13 +3,13 @@ package main
 import (
 	"log"
 	"time"
-	
-    "embed"
-    "net/http"
+
+	"embed"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-    "github.com/gofiber/fiber/v2/middleware/filesystem"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/storage/bbolt"
 )
 
@@ -17,9 +17,8 @@ import (
 //go:embed dist/*
 var embedDirStatic embed.FS
 
-
 func main() {
-	
+
 	store := bbolt.New(bbolt.Config{
 		Database: "times.db",
 		Bucket:   "times",
@@ -27,7 +26,7 @@ func main() {
 	})
 	defer store.Close()
 
-	exp := 0*time.Second
+	exp := 0 * time.Second
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
@@ -41,8 +40,8 @@ func main() {
 		timerType := c.Params("timerType")
 		byteValue, _ := store.Get(c.Params("timerType"))
 		value := string(byteValue)
-		log.Println(timerType,"is",value)
-		ret := struct{
+		log.Println(timerType, "is", value)
+		ret := struct {
 			Time string
 		}{Time: value}
 		return c.JSON(ret)
@@ -53,14 +52,14 @@ func main() {
 		timeStamp := c.Params("timeStamp")
 		log.Println("update:", timerType, "with value:", timeStamp)
 		store.Set(timerType, []byte(timeStamp), exp)
-		return c.JSON(struct{Time string}{timeStamp})
+		return c.JSON(struct{ Time string }{timeStamp})
 	})
 
 	app.Use("/", filesystem.New(filesystem.Config{
-        Root: http.FS(embedDirStatic),
-        PathPrefix: "dist",
-        Browse: true,
-    }))
+		Root:       http.FS(embedDirStatic),
+		PathPrefix: "dist",
+		Browse:     true,
+	}))
 
 	log.Println("live")
 	log.Fatal(app.Listen(":3000"))
