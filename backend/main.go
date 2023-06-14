@@ -40,7 +40,10 @@ func main() {
 		timerType := c.Params("timerType")
 		byteValue, _ := store.Get(c.Params("timerType"))
 		value := string(byteValue)
-		log.Println(timerType, "is", value)
+		if value == "" {
+			value = "0"
+		}
+		log.Println("GET:", timerType, "=", value)
 		ret := struct {
 			Time string
 		}{Time: value}
@@ -50,7 +53,7 @@ func main() {
 	app.Post("/time/:timerType/:timeStamp", func(c *fiber.Ctx) error {
 		timerType := c.Params("timerType")
 		timeStamp := c.Params("timeStamp")
-		log.Println("update:", timerType, "with value:", timeStamp)
+		log.Println("POST:", timerType, "=", timeStamp)
 		store.Set(timerType, []byte(timeStamp), exp)
 		return c.JSON(struct{ Time string }{timeStamp})
 	})
@@ -61,6 +64,5 @@ func main() {
 		Browse:     true,
 	}))
 
-	log.Println("live")
 	log.Fatal(app.Listen(":3000"))
 }
